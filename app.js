@@ -30,15 +30,15 @@ document.getElementById("container").addEventListener("click", function (event) 
 
   console.log(aStar(startNode, goalNode));
 
-  for (let node of aStar(startNode, goalNode).keys()) {
+  for (let node of aStar(startNode, goalNode)) {
     const dot = new Konva.Circle({
       x: node.x,
       y: node.y,
       radius: 3,
       fill: "green",
     });
-
     layer.add(dot);
+    layer.draw();
   }
 });
 
@@ -170,20 +170,20 @@ function aStar(startNode, goalNode) {
     // Get the node in openSet having the lowest fScore[] value
     let current = openSet.reduce((a, b) => (fScore.get(a) < fScore.get(b) ? a : b));
 
-    console.log("openSet length: " + openSet.length);
-    console.log("current:" + "x:" + current.x + " y:" + current.y);
+    // console.log("openSet length: " + openSet.length);
+    // console.log("current:" + "x:" + current.x + " y:" + current.y);
 
     if (current === goalNode) {
       // The path has been found, reconstruct it and return.
       //   return "found";
-      return cameFrom;
+      return reconstructPath(cameFrom, current);
     }
 
     openSet = openSet.filter((node) => !nodesAreEqual(node, current));
 
     const neighbors = getNeighbors(current);
     for (let neighbor of neighbors) {
-      console.log("checking neighbor:" + "x:" + neighbor.x + " y:" + neighbor.y);
+      //   console.log("checking neighbor:" + "x:" + neighbor.x + " y:" + neighbor.y);
 
       if (neighbor.x === current.x && neighbor.y === current.y) {
         continue; // Skip adding the current node again
@@ -193,13 +193,17 @@ function aStar(startNode, goalNode) {
       let tentative_gScore = gScore.get(current) + distBetween(current, neighbor);
 
       if (tentative_gScore < (gScore.get(neighbor) || Infinity)) {
-        if (!openSet.includes((neighbor) => nodesAreEqual(neighbor, current))) {
-          console.log("adding neighbor:" + "x:" + neighbor.x + " y:" + neighbor.y);
+        // Prevent circular reference in cameFrom
+        if (!cameFrom.has(current) || !nodesAreEqual(cameFrom.get(current), neighbor)) {
+          //   console.log("adding neighbor:" + "x:" + neighbor.x + " y:" + neighbor.y);
           // This path to neighbor is better than any previous one. Record it!
           cameFrom.set(neighbor, current);
           gScore.set(neighbor, tentative_gScore);
           fScore.set(neighbor, tentative_gScore + heuristic(neighbor, goalNode));
-          openSet.push(neighbor);
+
+          if (!openSet.includes(neighbor)) {
+            openSet.push(neighbor);
+          }
         }
       }
     }
@@ -214,7 +218,6 @@ function nodesAreEqual(nodeA, nodeB) {
 }
 
 function reconstructPath(cameFrom, current) {
-  debugger;
   let totalPath = [current];
   while (cameFrom.has(current)) {
     current = cameFrom.get(current);
