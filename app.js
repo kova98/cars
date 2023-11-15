@@ -38,7 +38,6 @@ document.getElementById("container").addEventListener("click", function (event) 
       fill: "green",
     });
     layer.add(dot);
-    layer.draw();
   }
 });
 
