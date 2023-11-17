@@ -16,11 +16,10 @@ const stage = new Konva.Stage({
 
 const layer = new Konva.Layer();
 
-// Assuming your image or canvas element has an ID 'myCanvas'
 document.getElementById("container").addEventListener("click", function (event) {
   var rect = this.getBoundingClientRect();
-  var x = event.clientX - rect.left; // x position within the element.
-  var y = event.clientY - rect.top; // y position within the element.
+  var x = event.clientX - rect.left;
+  var y = event.clientY - rect.top;
 
   var closestPoint = findClosestPoint(whitePoints, x, y);
   setGoalPoint(closestPoint);
@@ -28,7 +27,7 @@ document.getElementById("container").addEventListener("click", function (event) 
   const startNode = whitePoints.find((p) => p.x === startPoint.attrs.x && p.y === startPoint.attrs.y);
   const goalNode = whitePoints.find((p) => p.x === goalPoint.attrs.x && p.y === goalPoint.attrs.y);
 
-  const taxi = new Taxi(layer, "taxi", 10); // Speed is 1, adjust as needed
+  const taxi = new Taxi(layer, "taxi", 10);
 
   const path = aStar(startNode, goalNode);
   taxi.moveAlongPath(path);
@@ -38,7 +37,6 @@ document.getElementById("container").addEventListener("click", function (event) 
 function findClosestPoint(points, clickX, clickY) {
   var closest = null;
   var closestDistance = Infinity;
-
   points.forEach(function (point) {
     var distance = Math.hypot(point.x - clickX, point.y - clickY);
     if (distance < closestDistance) {
@@ -50,34 +48,13 @@ function findClosestPoint(points, clickX, clickY) {
   return closest;
 }
 
-function moveTaxiTo(point, callback) {
-  const taxi = layer.find((node) => node.attrs.id === "taxi")[0];
-
-  taxi.to({
-    x: point.x - 20,
-    y: point.y - 20,
-    duration: 0.1, // Duration in seconds
-    easing: Konva.Easings.EaseInOut,
-    onFinish: callback, // Callback after animation is finished
-  });
-}
-
-function moveTaxiAlongPath(path) {
-  if (path.length === 0) {
-    return; // No more points to move to
-  }
-
-  const nextPoint = path.shift(); // Get the next point and remove it from the path
-  moveTaxiTo(nextPoint, () => moveTaxiAlongPath(path)); // Move to next point, then call recursively
-}
-
 function setGoalPoint(point) {
   const newGoalPoint = layer.find((node) => node.attrs.x === point.x && node.attrs.y === point.y)[0];
   if (goalPoint) {
     goalPoint.attrs.fill = accentColor;
   }
   goalPoint = newGoalPoint;
-  goalPoint.attrs.fill = "blue";
+  goalPoint.attrs.fill = "green";
   layer.draw();
 }
 
@@ -136,16 +113,18 @@ document.addEventListener("DOMContentLoaded", function () {
       layer.add(dot);
     }
 
-    var text = new Konva.Text({
-      x: width / 2,
-      y: height / 2,
+    const centerPoint = findClosestPoint(whitePoints, width / 2, height / 2);
+
+    var taxi = new Konva.Text({
+      x: centerPoint.x - 20,
+      y: centerPoint.y - 20,
       text: "🚕",
       fontSize: 30,
       align: "right",
       id: "taxi",
     });
 
-    layer.add(text);
+    layer.add(taxi);
 
     layer.draw();
     stage.add(layer);
@@ -153,8 +132,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const startNode = whitePoints[4];
     const goalNode = whitePoints[8];
 
-    startPoint = layer.find((node) => node.attrs.x === startNode.x && node.attrs.y === startNode.y)[0];
-    startPoint.attrs.fill = "green";
+    startPoint = layer.find((node) => node.attrs.x === centerPoint.x && node.attrs.y === centerPoint.y)[0];
     goalPoint = layer.find((node) => node.attrs.x === goalNode.x && node.attrs.y === goalNode.y)[0];
 
     setGoalPoint(goalNode);
