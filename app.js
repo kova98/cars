@@ -137,7 +137,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     setGoalPoint(goalNode);
   };
-  imageObj.src = "/map.jpg";
+  imageObj.src = "./map.jpg";
 });
 
 function aStar(startNode, goalNode) {
