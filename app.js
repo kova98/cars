@@ -1,7 +1,7 @@
 let whitePoints = [];
 const width = 800;
 const height = 800;
-const minDistance = 10;
+const minDistance = 15;
 
 const accentColor = getComputedStyle(document.documentElement).getPropertyValue("--accent-color").trim();
 
@@ -28,17 +28,11 @@ document.getElementById("container").addEventListener("click", function (event) 
   const startNode = whitePoints.find((p) => p.x === startPoint.attrs.x && p.y === startPoint.attrs.y);
   const goalNode = whitePoints.find((p) => p.x === goalPoint.attrs.x && p.y === goalPoint.attrs.y);
 
-  console.log(aStar(startNode, goalNode));
+  const taxi = new Taxi(layer, "taxi", 10); // Speed is 1, adjust as needed
 
-  for (let node of aStar(startNode, goalNode)) {
-    const dot = new Konva.Circle({
-      x: node.x,
-      y: node.y,
-      radius: 3,
-      fill: "green",
-    });
-    layer.add(dot);
-  }
+  const path = aStar(startNode, goalNode);
+  taxi.moveAlongPath(path);
+  startPoint = goalPoint;
 });
 
 function findClosestPoint(points, clickX, clickY) {
@@ -56,6 +50,27 @@ function findClosestPoint(points, clickX, clickY) {
   return closest;
 }
 
+function moveTaxiTo(point, callback) {
+  const taxi = layer.find((node) => node.attrs.id === "taxi")[0];
+
+  taxi.to({
+    x: point.x - 20,
+    y: point.y - 20,
+    duration: 0.1, // Duration in seconds
+    easing: Konva.Easings.EaseInOut,
+    onFinish: callback, // Callback after animation is finished
+  });
+}
+
+function moveTaxiAlongPath(path) {
+  if (path.length === 0) {
+    return; // No more points to move to
+  }
+
+  const nextPoint = path.shift(); // Get the next point and remove it from the path
+  moveTaxiTo(nextPoint, () => moveTaxiAlongPath(path)); // Move to next point, then call recursively
+}
+
 function setGoalPoint(point) {
   const newGoalPoint = layer.find((node) => node.attrs.x === point.x && node.attrs.y === point.y)[0];
   if (goalPoint) {
@@ -67,13 +82,6 @@ function setGoalPoint(point) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  const dot = new Konva.Circle({
-    x: width / 2,
-    y: height / 2,
-    radius: 5,
-    fill: accentColor,
-  });
-
   var imageObj = new Image();
   imageObj.onload = function () {
     var canvas = document.createElement("canvas");
@@ -90,7 +98,7 @@ document.addEventListener("DOMContentLoaded", function () {
       var green = data[i + 1];
       var blue = data[i + 2];
       var alpha = data[i + 3];
-      if (red === 255 && green === 255 && blue === 255 && alpha === 255) {
+      if (red > 250 && green > 250 && blue > 250 && alpha > 250) {
         // Calculate the x and y coordinates
         var x = (i / 4) % imageObj.width;
         var y = Math.floor(i / 4 / imageObj.width);
@@ -115,7 +123,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     layer.add(map);
 
-    whitePoints = whitePoints.slice(0, 1000);
+    whitePoints = whitePoints.slice(0, 5000);
 
     for (var i = 0; i < whitePoints.length; i += 1) {
       var point = whitePoints[i];
@@ -128,11 +136,19 @@ document.addEventListener("DOMContentLoaded", function () {
       layer.add(dot);
     }
 
-    layer.add(dot);
+    var text = new Konva.Text({
+      x: width / 2,
+      y: height / 2,
+      text: "🚕",
+      fontSize: 30,
+      align: "right",
+      id: "taxi",
+    });
+
+    layer.add(text);
+
     layer.draw();
     stage.add(layer);
-
-    console.log("whitePoints length: " + whitePoints.length);
 
     const startNode = whitePoints[4];
     const goalNode = whitePoints[8];
@@ -142,8 +158,6 @@ document.addEventListener("DOMContentLoaded", function () {
     goalPoint = layer.find((node) => node.attrs.x === goalNode.x && node.attrs.y === goalNode.y)[0];
 
     setGoalPoint(goalNode);
-
-    console.log(aStar(startNode, goalNode));
   };
   imageObj.src = "/map.jpg";
 });
