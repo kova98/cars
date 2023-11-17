@@ -27,10 +27,10 @@ document.getElementById("container").addEventListener("click", function (event) 
   const startNode = whitePoints.find((p) => p.x === startPoint.attrs.x && p.y === startPoint.attrs.y);
   const goalNode = whitePoints.find((p) => p.x === goalPoint.attrs.x && p.y === goalPoint.attrs.y);
 
-  const taxi = new Taxi(layer, "taxi", 10);
+  const car = new Car(layer, "car", 10);
 
   const path = aStar(startNode, goalNode);
-  taxi.moveAlongPath(path);
+  car.moveAlongPath(path);
   startPoint = goalPoint;
 });
 
@@ -115,16 +115,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const centerPoint = findClosestPoint(whitePoints, width / 2, height / 2);
 
-    var taxi = new Konva.Text({
+    var car = new Konva.Text({
       x: centerPoint.x - 20,
       y: centerPoint.y - 20,
-      text: "🚕",
+      text: "🚗",
       fontSize: 30,
       align: "right",
-      id: "taxi",
+      id: "car",
     });
 
-    layer.add(taxi);
+    layer.add(car);
 
     layer.draw();
     stage.add(layer);

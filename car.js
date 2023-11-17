@@ -1,17 +1,16 @@
-class Taxi {
+class Car {
   constructor(layer, id, speed) {
     this.layer = layer;
     this.id = id;
-    this.speed = speed; // Speed of the taxi movement
+    this.speed = speed;
     this.taxiNode = this.layer.find((node) => node.attrs.id === this.id)[0];
-    this.moving = false;
   }
 
   moveTo(point, callback) {
     this.taxiNode.to({
       x: point.x - 20,
       y: point.y - 20,
-      duration: 1 / this.speed, // Adjust duration based on speed
+      duration: 1 / this.speed,
       easing: Konva.Easings.Linear,
       onFinish: callback,
     });
