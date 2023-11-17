@@ -12,7 +12,7 @@ class Taxi {
       x: point.x - 20,
       y: point.y - 20,
       duration: 1 / this.speed, // Adjust duration based on speed
-      easing: Konva.Easings.EaseInOut,
+      easing: Konva.Easings.Linear,
       onFinish: callback,
     });
   }
