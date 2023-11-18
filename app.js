@@ -41,17 +41,14 @@ document.getElementById("container").addEventListener("click", function (event) 
   var y = event.clientY - rect.top;
 
   var closestPoint = findClosestPoint(whitePoints, x, y);
-  setGoalPoint(closestPoint);
 
   const randomCar = cars[Math.floor(Math.random() * cars.length)];
-  const goalNode = whitePoints.find((p) => p.x === goalPoint.attrs.x && p.y === goalPoint.attrs.y);
-  const startNode = whitePoints.find(
+  const startPoint = whitePoints.find(
     (p) => p.x === randomCar.carElement.attrs.x + 20 && p.y === randomCar.carElement.attrs.y + 20
   );
 
-  const path = aStar(startNode, goalNode);
+  const path = aStar(startPoint, closestPoint);
   randomCar.moveAlongPath(path);
-  startPoint = goalPoint;
 });
 
 function findClosestPoint(points, clickX, clickY) {
@@ -66,16 +63,6 @@ function findClosestPoint(points, clickX, clickY) {
   });
 
   return closest;
-}
-
-function setGoalPoint(point) {
-  const newGoalPoint = layer.find((node) => node.attrs.x === point.x && node.attrs.y === point.y)[0];
-  if (goalPoint) {
-    goalPoint.attrs.fill = accentColor;
-  }
-  goalPoint = newGoalPoint;
-  goalPoint.attrs.fill = "green";
-  layer.draw();
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -120,16 +107,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     layer.add(map);
 
-    for (var i = 0; i < whitePoints.length; i += 1) {
-      var point = whitePoints[i];
-      const dot = new Konva.Circle({
-        x: point.x,
-        y: point.y,
-        radius: 2,
-        fill: accentColor,
-      });
-      layer.add(dot);
-    }
+    // Draw pathfinding nodes
+    // for (var i = 0; i < whitePoints.length; i += 1) {
+    //   var point = whitePoints[i];
+    //   const dot = new Konva.Circle({
+    //     x: point.x,
+    //     y: point.y,
+    //     radius: 2,
+    //     fill: accentColor,
+    //   });
+    //   layer.add(dot);
+    // }
 
     const centerPoint = findClosestPoint(whitePoints, width / 2, height / 2);
     var carElement = new Konva.Text({
@@ -149,12 +137,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     for (let i = 0; i < 10; i++) {
       const randomPoint = whitePoints[Math.floor(Math.random() * whitePoints.length)];
-      const randomNode = layer.find((node) => node.attrs.x === randomPoint.x && node.attrs.y === randomPoint.y)[0];
       const randomModel = carModels[Math.floor(Math.random() * carModels.length)];
 
       const carElement = new Konva.Text({
-        x: randomNode.attrs.x - 20,
-        y: randomNode.attrs.y - 20,
+        x: randomPoint.x - 20,
+        y: randomPoint.y - 20,
         text: randomModel,
         fontSize: 30,
         align: "right",
@@ -175,8 +162,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     startPoint = layer.find((node) => node.attrs.x === centerPoint.x && node.attrs.y === centerPoint.y)[0];
     goalPoint = layer.find((node) => node.attrs.x === goalNode.x && node.attrs.y === goalNode.y)[0];
-
-    setGoalPoint(goalNode);
   };
   imageObj.src = "./map.jpg";
 });
