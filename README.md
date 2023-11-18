@@ -8,4 +8,4 @@ Click anywhere to order a random car to the closest point on the road.
 
 Not mobile friendly. 
 
-![image](https://github.com/kova98/cars/assets/28999034/98bf150d-dbd4-416b-982c-47fd31d61cf2)
+![image](https://github.com/kova98/cars/assets/28999034/8a840630-1b18-41c4-bd72-c7947dbf9d9e)
