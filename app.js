@@ -16,6 +16,25 @@ const stage = new Konva.Stage({
 
 const layer = new Konva.Layer();
 
+let car;
+
+const cars = [];
+// function loop() {
+//   cars.forEach((car) => {
+//     if (!car.isMoving) {
+//       const randomPoint = whitePoints[Math.floor(Math.random() * whitePoints.length)];
+//       const randomNode = layer.find((node) => node.attrs.x === randomPoint.x && node.attrs.y === randomPoint.y)[0];
+//       const startNode = whitePoints.find(
+//         (p) => p.x === car.carElement.attrs.x + 20 && p.y === car.carElement.attrs.y + 20
+//       );
+//       const path = aStar(startNode, randomNode);
+//       car.moveAlongPath(path);
+//     }
+//   });
+// }
+
+// setInterval(loop, 2000);
+
 document.getElementById("container").addEventListener("click", function (event) {
   var rect = this.getBoundingClientRect();
   var x = event.clientX - rect.left;
@@ -24,13 +43,14 @@ document.getElementById("container").addEventListener("click", function (event) 
   var closestPoint = findClosestPoint(whitePoints, x, y);
   setGoalPoint(closestPoint);
 
-  const startNode = whitePoints.find((p) => p.x === startPoint.attrs.x && p.y === startPoint.attrs.y);
+  const randomCar = cars[Math.floor(Math.random() * cars.length)];
   const goalNode = whitePoints.find((p) => p.x === goalPoint.attrs.x && p.y === goalPoint.attrs.y);
-
-  const car = new Car(layer, "car", 10);
+  const startNode = whitePoints.find(
+    (p) => p.x === randomCar.carElement.attrs.x + 20 && p.y === randomCar.carElement.attrs.y + 20
+  );
 
   const path = aStar(startNode, goalNode);
-  car.moveAlongPath(path);
+  randomCar.moveAlongPath(path);
   startPoint = goalPoint;
 });
 
@@ -100,8 +120,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     layer.add(map);
 
-    whitePoints = whitePoints.slice(0, 5000);
-
     for (var i = 0; i < whitePoints.length; i += 1) {
       var point = whitePoints[i];
       const dot = new Konva.Circle({
@@ -114,8 +132,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const centerPoint = findClosestPoint(whitePoints, width / 2, height / 2);
-
-    var car = new Konva.Text({
+    var carElement = new Konva.Text({
       x: centerPoint.x - 20,
       y: centerPoint.y - 20,
       text: "🚗",
@@ -124,7 +141,31 @@ document.addEventListener("DOMContentLoaded", function () {
       id: "car",
     });
 
-    layer.add(car);
+    layer.add(carElement);
+
+    car = new Car(carElement, "car", 10);
+
+    const carModels = ["🚗", "🚙", "🚕", "🚓", "🚑", "🚒", "🚐", "🚚", "🚛", "🚜"];
+
+    for (let i = 0; i < 10; i++) {
+      const randomPoint = whitePoints[Math.floor(Math.random() * whitePoints.length)];
+      const randomNode = layer.find((node) => node.attrs.x === randomPoint.x && node.attrs.y === randomPoint.y)[0];
+      const randomModel = carModels[Math.floor(Math.random() * carModels.length)];
+
+      const carElement = new Konva.Text({
+        x: randomNode.attrs.x - 20,
+        y: randomNode.attrs.y - 20,
+        text: randomModel,
+        fontSize: 30,
+        align: "right",
+        id: "car" + i,
+      });
+
+      layer.add(carElement);
+
+      const car = new Car(carElement, "car" + i, 10);
+      cars.push(car);
+    }
 
     layer.draw();
     stage.add(layer);

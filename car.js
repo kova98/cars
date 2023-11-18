@@ -1,13 +1,14 @@
 class Car {
-  constructor(layer, id, speed) {
+  constructor(carElement, id, speed) {
     this.layer = layer;
     this.id = id;
     this.speed = speed;
-    this.taxiNode = this.layer.find((node) => node.attrs.id === this.id)[0];
+    this.carElement = carElement;
+    this.isMoving = false;
   }
 
   moveTo(point, callback) {
-    this.taxiNode.to({
+    this.carElement.to({
       x: point.x - 20,
       y: point.y - 20,
       duration: 1 / this.speed,
@@ -17,7 +18,9 @@ class Car {
   }
 
   moveAlongPath(path) {
+    this.isMoving = true;
     if (path.length === 0) {
+      this.isMoving = false;
       return; // End of path
     }
 
